@@ -10,12 +10,24 @@ if [ $# -eq 0 ] ; then
   cat <<EOF
 usage: kesmdownloadv <depth-start> <depth-end> <zoom> <x-start> <x-end> <y-start> <y-end>
 
+* Note: use kesmdownloadv-auto if possible. You don't need to figure out the x and y
+  range, with that script.
+
+* Typical range for each depth is: 
+depth: xmin xmax ymin ymax
+0: 40 87 40 87
+1: 20 43 20 43
+2: 10 21 10 21
+3: 5 10 5 10
+4: 2 5 2 5
+5: 1 3 1 3
+
 example: 
 	kesmdownloadv 3400 3401 0 0 10 0 
 
 	zoom: 0  = highest resolution
-	x-start: min 0 , max 87 (or so)
- 	y-start: min 0 , max 87 (or so)
+	x-start: min 1 , max 87 (or so), depending on depth
+ 	y-start: min 1 , max 87 (or so), depending on depth
 
 dependencies:
 	lynx   (commandline web browser app)
