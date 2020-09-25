@@ -12,10 +12,18 @@ usage: kesmdownloadv-auto <depth-start> <depth-end> <zoom>
 
 example usage: 
 
-	./kesmdownloadv 3400 3401 0 
+	./kesmdownloadv-auto 3400 3401 0 
 
 	zoom: 0  = highest resolution
-	depth range is from 0 to 
+
+	depth range is from 0 to 9258
+
+	Tip: first try downloading the entire zoom level 5.
+
+	./kesmdownloadv-auto 0 9258 5
+
+	This should not take too long and you can check if there's any
+ 	error quickly.
 
 dependencies:
 
@@ -31,6 +39,7 @@ caveats:
 	- at least it will check if the downloaded file is a png file or not, 
 	  and removes if not.
 	- it will not overwrite existing files
+
 EOF
   exit
 fi
@@ -52,6 +61,8 @@ for i in `seq $ds 1 $de `; do
     depth=`printf "%05d" $i`
 
     # fetch range.dat file : 
+    # - assumes that range.dat exists in each directory!
+    # - I made sure this is the case, but just in case it is not there, error may occur
     lynx -source http://kesm.cs.tamu.edu/data/indiaInk/tiles/coronal/$depth/range.dat > range.dat
 
     range_line=`grep $zoom: range.dat`
