@@ -5,6 +5,14 @@
 # Author: Yoonsuck Choe
 #
 # https://github.com/yschoe/kesm
+#
+# Please cite the following papers:
+#
+# Mayerich, D., Kwon, J., Sung, C., Abbott, L. C., Keyser, J., and Choe, Y. (2011). 
+#  Fast macro-scale transmission imaging of microvascular networks using KESM. Biomedical Optics Express, 2:2888–2896.
+#
+# Chung, J. R., Sung, C., Mayerich, D., Kwon, J., Miller, D. E., Huffman, T., Abbott, L. C., Keyser, J., and Choe, Y. (2011). 
+# Multiscale exploration of mouse brain microstructures using the knife-edge scanning microscope brain atlas. Frontiers in Neuroinformatics, 5:29.
 
 if [ $# -ne 3 ] ; then
   cat <<EOF
