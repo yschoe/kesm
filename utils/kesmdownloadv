@@ -1,0 +1,91 @@
+#!/bin/bash
+
+# http://kesm.org
+# Download script for KESM vasculature data tiles (png version)
+# Author: Yoonsuck Choe
+#
+# https://github.com/yschoe/kesm
+
+if [ $# -eq 0 ] ; then
+  cat <<EOF
+usage: kesmdownloadv <depth-start> <depth-end> <zoom> <x-start> <x-end> <y-start> <y-end>
+
+example: 
+	kesmdownloadv 3400 3401 0 0 10 0 
+
+	zoom: 0  = highest resolution
+	x-start: min 0 , max 87 (or so)
+ 	y-start: min 0 , max 87 (or so)
+
+dependencies:
+	lynx   (commandline web browser app)
+	printf (commandline app)
+
+side effects:
+	creates subdirectories for each depth
+
+caveats:
+	does not check whether given x- and y-range or depth are valid.
+	- at least it will check if the downloaded file is a png file or not, 
+	  and removes if not.
+	- it will not overwrite existing files
+EOF
+  exit
+fi
+
+# get command line arguments
+
+ds=$1
+de=$2
+zoom=$3
+xs=$4
+xe=$5
+ys=$6
+ye=$7
+
+# for given depth range
+for i in `seq $ds 1 $de `; do
+
+    # for x range (columns)
+    for j in `seq $xs 1 $xe` ; do
+
+        # for y range (rows)
+	for k in `seq $ys 1 $ye` ; do
+
+		# 1. Generate 0-padded integer for the depth, j, and k
+
+		depth=`printf "%05d" $i`
+		j_padded=`printf "%03d" $j`
+		k_padded=`printf "%03d" $k`
+
+		# 2. Create subdirectory for each depth if it does not exist
+
+		if [ ! -d "$depth" ] ; then
+			mkdir $depth
+		fi
+
+		# 3. Download using the lynx command
+
+		echo "Depth $i ---- zoom: $zoom --- tile: $j-$k" 
+		url="http://kesm.cs.tamu.edu/data/indiaInk/tiles/coronal/$depth/${zoom}_${j}_${k}.png"
+		local_file="$depth/${zoom}_${j_padded}_${k_padded}.png"
+
+		if [ -f $local_file ] ; then
+			echo "  SKIPPING: file $local_file exists. Skipping"
+	 	else
+			lynx -source $url > $local_file
+		fi
+
+		# 4. Check if downloaded file is a png file. If not, remove it (HTML error page).
+
+		check=`file $depth/${zoom}_${j_padded}_${k_padded}.png | grep PNG || echo "false"`
+
+		if [ "$check" == "false" ] ; then
+			echo "	ERROR: out of range - removing $depth/${zoom}_${j_padded}_${k_padded}.png"
+			rm $depth/${zoom}_${j_padded}_${k_padded}.png
+		fi
+	done
+
+    done
+
+done
