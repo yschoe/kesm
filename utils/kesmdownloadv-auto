@@ -1,0 +1,111 @@
+#!/bin/bash
+
+# http://kesm.org
+# Download script for KESM vasculature data tiles (png version)
+# Author: Yoonsuck Choe
+#
+# https://github.com/yschoe/kesm
+
+if [ $# -ne 3 ] ; then
+  cat <<EOF
+usage: kesmdownloadv-auto <depth-start> <depth-end> <zoom> 
+
+example usage: 
+
+	./kesmdownloadv 3400 3401 0 
+
+	zoom: 0  = highest resolution
+	depth range is from 0 to 
+
+dependencies:
+
+	lynx   (commandline web browser app)
+	printf (commandline app)
+
+side effects:
+
+	creates subdirectories for each depth
+
+caveats:
+	does not check whether given x- and y-range or depth are valid.
+	- at least it will check if the downloaded file is a png file or not, 
+	  and removes if not.
+	- it will not overwrite existing files
+EOF
+  exit
+fi
+
+########################################
+# get command line arguments
+########################################
+
+ds=$1
+de=$2
+zoom=$3
+
+########################################
+# Loop over the provided depth range
+########################################
+for i in `seq $ds 1 $de `; do
+
+    # 0-padded depth directory name
+    depth=`printf "%05d" $i`
+
+    # fetch range.dat file : 
+    lynx -source http://kesm.cs.tamu.edu/data/indiaInk/tiles/coronal/$depth/range.dat > range.dat
+
+    range_line=`grep $zoom: range.dat`
+    xs=`echo $range_line | awk '{print $2}'`
+    xe=`echo $range_line | awk '{print $3}'`
+    ys=`echo $range_line | awk '{print $4}'`
+    ye=`echo $range_line | awk '{print $5}'`
+
+    ####################
+    # for x range (columns)
+    ####################
+
+    for j in `seq $xs 1 $xe` ; do
+
+        ####################
+        # for y range (rows)
+        ####################
+
+	for k in `seq $ys 1 $ye` ; do
+
+		# 1. Generate 0-padded integer for the depth, j, and k
+
+		j_padded=`printf "%03d" $j`
+		k_padded=`printf "%03d" $k`
+
+		# 2. Create subdirectory for each depth if it does not exist
+
+		if [ ! -d "$depth" ] ; then
+			mkdir $depth
+		fi
+
+		# 3. Download using the lynx command
+
+		echo "Depth $i ---- zoom: $zoom --- tile: $j-$k" 
+		url="http://kesm.cs.tamu.edu/data/indiaInk/tiles/coronal/$depth/${zoom}_${j}_${k}.png"
+		local_file="$depth/${zoom}_${j_padded}_${k_padded}.png"
+
+		# 3.1. Check if file exists. If so, skip. Otherwise, download using lynx
+		if [ -f $local_file ] ; then
+			echo "  SKIPPING: file $local_file exists. Skipping"
+	 	else
+			lynx -source $url > $local_file
+		fi
+
+		# 3.2. Check if downloaded file is a png file. If not, remove it (HTML error page).
+
+		check=`file $depth/${zoom}_${j_padded}_${k_padded}.png | grep PNG || echo "false"`
+
+		if [ "$check" == "false" ] ; then
+			echo "	ERROR: out of range - removing $depth/${zoom}_${j_padded}_${k_padded}.png"
+			rm $depth/${zoom}_${j_padded}_${k_padded}.png
+		fi
+	done
+
+    done
+
+done
