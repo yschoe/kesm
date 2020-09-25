@@ -14,16 +14,18 @@ example usage:
 
 	./kesmdownloadv-auto 3400 3401 0 
 
-	zoom: 0  = highest resolution
+		zoom: 0  = highest resolution
 
-	depth range is from 0 to 9258
+		depth range is from 0 to 9258
 
 	Tip: first try downloading the entire zoom level 5.
 
 	./kesmdownloadv-auto 0 9258 5
 
-	This should not take too long and you can check if there's any
- 	error quickly.
+		This should not take too long and you can check if there's any
+ 		error quickly.
+
+		Note: depth 07394 has the entire zoom level 5 missing.
 
 dependencies:
 
