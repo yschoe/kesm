@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# usage:
+#    ./calcrange 00000
+# 
+# dependencies:
+#    minmax.pl
+
+MYWD=`pwd`
+
+cd $1
+
+echo "Ranges $1" > range.dat
+
+
+echo $1 
+for i in {0..5}; do
+
+  ls ${i}_* | $MYWD/minmax.pl  >> range.dat
+
+done
+
+cd ..
+
